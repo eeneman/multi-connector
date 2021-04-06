@@ -1,0 +1,3 @@
+--pythonpath lib
+--outputdir connectors/kerava/result
+connectors/kerava/connector_tests.robot
