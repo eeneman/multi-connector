@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 3.2.2 (Python 3.9.2 on win32)" generated="20210517 10:49:45.783" rpa="false">
+<suite id="s1" name="Connector Tests" source="D:\vastuu\multi-connector\robottests\connectors\vastuu\connector_tests.robot">
+<test id="s1-t1" name="fetch, 200">
+<kw name="Get Body">
+<assign>
+<var>${body}</var>
+</assign>
+<kw name="Copy Dictionary" library="Collections">
+<doc>Returns a copy of the given dictionary.</doc>
+<arguments>
+<arg>${BROKER_BODY}</arg>
+<arg>deepcopy=True</arg>
+</arguments>
+<assign>
+<var>${body}</var>
+</assign>
+<msg timestamp="20210517 10:49:46.071" level="INFO">${body} = {'productCode': 'vastuu', 'parameters': {'ids': [{'businessId': '2327327-1', 'countryCode': 'fi'}]}}</msg>
+<status status="PASS" starttime="20210517 10:49:46.070" endtime="20210517 10:49:46.071"></status>
+</kw>
+<kw name="Get Current Date" library="DateTime">
+<doc>Returns current local or UTC time with an optional increment.</doc>
+<arguments>
+<arg>time_zone=UTC</arg>
+<arg>result_format=%Y-%m-%dT%H:%M:%S+00:00</arg>
+</arguments>
+<assign>
+<var>${now}</var>
+</assign>
+<msg timestamp="20210517 10:49:46.071" level="INFO">${now} = 2021-05-17T05:19:46+00:00</msg>
+<status status="PASS" starttime="20210517 10:49:46.071" endtime="20210517 10:49:46.071"></status>
+</kw>
+<kw name="Set To Dictionary" library="Collections">
+<doc>Adds the given ``key_value_pairs`` and ``items`` to the ``dictionary``.</doc>
+<arguments>
+<arg>${body}</arg>
+<arg>timestamp</arg>
+<arg>${now}</arg>
+</arguments>
+<status status="PASS" starttime="20210517 10:49:46.071" endtime="20210517 10:49:46.071"></status>
+</kw>
+<kw name="Set To Dictionary" library="Collections">
+<doc>Adds the given ``key_value_pairs`` and ``items`` to the ``dictionary``.</doc>
+<arguments>
+<arg>${body}</arg>
+<arg>&amp;{kwargs}</arg>
+</arguments>
+<status status="PASS" starttime="20210517 10:49:46.071" endtime="20210517 10:49:46.072"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<arguments>
+<arg>json.dumps(${body})</arg>
+<arg>json</arg>
+</arguments>
+<assign>
+<var>${json_string}</var>
+</assign>
+<msg timestamp="20210517 10:49:46.072" level="INFO">${json_string} = {"productCode": "vastuu", "parameters": {"ids": [{"businessId": "2327327-1", "countryCode": "fi"}]}, "timestamp": "2021-05-17T05:19:46+00:00"}</msg>
+<status status="PASS" starttime="20210517 10:49:46.072" endtime="20210517 10:49:46.072"></status>
+</kw>
+<msg timestamp="20210517 10:49:46.072" level="INFO">${body} = {'productCode': 'vastuu', 'parameters': {'ids': [{'businessId': '2327327-1', 'countryCode': 'fi'}]}, 'timestamp': '2021-05-17T05:19:46+00:00'}</msg>
+<status status="PASS" starttime="20210517 10:49:46.070" endtime="20210517 10:49:46.072"></status>
+</kw>
+<kw name="Fetch Data Product">
+<arguments>
+<arg>${body}</arg>
+</arguments>
+<kw name="Calculate Pot Signature" library="PoTLib">
+<arguments>
+<arg>${body}</arg>
+<arg>${CLIENT_SECRET}</arg>
+</arguments>
+<assign>
+<var>${signature}</var>
+</assign>
+<msg timestamp="20210517 10:49:46.073" level="INFO">${signature} = wXX9n7yJ3BWkpZSOPQ0rJz+ESmR/hhyMIKG+P/w2XdM=</msg>
+<status status="PASS" starttime="20210517 10:49:46.073" endtime="20210517 10:49:46.073"></status>
+</kw>
+<kw name="Set Headers" library="REST">
+<tags>
+<tag>settings</tag>
+</tags>
+<doc>*Sets new request headers or updates the existing.*</doc>
+<arguments>
+<arg>{"x-pot-signature": "${signature}", "x-app-token": "${APP_TOKEN}"}</arg>
+</arguments>
+<msg timestamp="20210517 10:49:46.075" level="FAIL">Input is not valid JSON or a file: {"x-pot-signature": "wXX9n7yJ3BWkpZSOPQ0rJz+ESmR/hhyMIKG+P/w2XdM=", "x-app-token": """"}</msg>
+<status status="FAIL" starttime="20210517 10:49:46.074" endtime="20210517 10:49:46.075"></status>
+</kw>
+<status status="FAIL" starttime="20210517 10:49:46.073" endtime="20210517 10:49:46.075"></status>
+</kw>
+<status status="FAIL" starttime="20210517 10:49:46.069" endtime="20210517 10:49:46.075" critical="yes">Input is not valid JSON or a file: {"x-pot-signature": "wXX9n7yJ3BWkpZSOPQ0rJz+ESmR/hhyMIKG+P/w2XdM=", "x-app-token": """"}</status>
+</test>
+<doc>vastuu - REST</doc>
+<status status="FAIL" starttime="20210517 10:49:45.785" endtime="20210517 10:49:46.077"></status>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="1">Critical Tests</stat>
+<stat pass="0" fail="1">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="0" fail="1" id="s1" name="Connector Tests">Connector Tests</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
