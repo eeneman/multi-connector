@@ -1,0 +1,3 @@
+--pythonpath lib
+--outputdir connectors/vilpe/result
+connectors/vilpe/connector_tests.robot
