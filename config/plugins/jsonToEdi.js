@@ -87,19 +87,20 @@ const jsonToEdi = function (obj) {
   let ftxt = freeTextLoop.createSegment("FTX");
   ftxt.addElement("AAI");
   ftxt.addElement("1");
-  ftxt.addElement("");
-  let ftcomp = new edi.LightWeightElement();
-  ftcomp.addCompositeElement(obj.descriptionGeneral.slice(0, 70));
-  if (obj.descriptionGeneral.length > 70)
-    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(70, 140));
-  if (obj.descriptionGeneral.length > 140)
-    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(140, 210));
-  if (obj.descriptionGeneral.length > 210)
-    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(210, 280));
-  if (obj.descriptionGeneral.length > 280)
-    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(280, 350));
-  ftxt.elements.add(ftcomp)
-
+  if (obj.descriptionGeneral) {
+    ftxt.addElement("");
+    let ftcomp = new edi.LightWeightElement();
+    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(0, 70));
+    if (obj.descriptionGeneral.length > 70)
+      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(70, 140));
+    if (obj.descriptionGeneral.length > 140)
+      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(140, 210));
+    if (obj.descriptionGeneral.length > 210)
+      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(210, 280));
+    if (obj.descriptionGeneral.length > 280)
+      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(280, 350));
+    ftxt.elements.add(ftcomp)
+  }
   //NAD+BY+BOCTOKOVT++Boctok Oy'	<-- Buyer OVT/GLN, Buyer name
   //NAD+3035+C082+C058+C080+C059+3164+3229+3251+3207
   //C082->3039:1131:3055
@@ -110,8 +111,10 @@ const jsonToEdi = function (obj) {
   let bName = buyerNameLoop.createSegment("NAD");
   bName.addElement("BY");
   bName.addElement("BOCTOKOVT");
-  bName.addElement("");
-  bName.addElement(obj.customer.name)
+  if (obj.customer.name) {
+    bName.addElement("");
+    bName.addElement(obj.customer.name)
+  }
 
   //NAD+SE+003709924664'	<-- Seller OVT, Dahl generic/HQ
   //NAD+3035+C082+C058+C080+C059+3164+3229+3251+3207
@@ -133,27 +136,43 @@ const jsonToEdi = function (obj) {
   let DeliveryaddressLoop = messageLoop.createLoop("Delivery address")
   let dAdd = DeliveryaddressLoop.createSegment("NAD");
   dAdd.addElement("DP");
-  dAdd.addElement("");
-  dAdd.addElement("");
-  dAdd.addElement(obj.addressShipping.name);
-  dAdd.addElement(obj.addressShipping.streetAddressLine1);
-  dAdd.addElement(obj.addressShipping.postalArea);
-  dAdd.addElement("");
-  dAdd.addElement(obj.addressShipping.postalCode);
-  dAdd.addElement(obj.addressShipping.country);
+  if (obj.addressShipping.name || obj.addressShipping.streetAddressLine1 || obj.addressShipping.postalArea || obj.addressShipping.postalCode || obj.addressShipping.country) {
+    dAdd.addElement("");
+    dAdd.addElement("");
+    dAdd.addElement(obj.addressShipping.name);
+  }
+  if (obj.addressShipping.streetAddressLine1 || obj.addressShipping.postalArea || obj.addressShipping.postalCode || obj.addressShipping.country)
+    dAdd.addElement(obj.addressShipping.streetAddressLine1);
+  if (obj.addressShipping.postalArea || obj.addressShipping.postalCode || obj.addressShipping.country)
+    dAdd.addElement(obj.addressShipping.postalArea);
+  if (obj.addressShipping.postalCode || obj.addressShipping.country) {
+    dAdd.addElement("");
+    dAdd.addElement(obj.addressShipping.postalCode);
+  }
+  if (obj.addressShipping.country)
+    dAdd.addElement(obj.addressShipping.country);
 
   // NAD+IV+++Boctok Oy+PL 908+DOCUSCAN++02066+FI'	<-- Invoicing address (uncertain if this is mandatory on orders, Dahl to confirm)
   let InvoicingaddressLoop = messageLoop.createLoop("Invoicing address")
   let invAdd = InvoicingaddressLoop.createSegment("NAD");
   invAdd.addElement("IV");
-  invAdd.addElement("");
-  invAdd.addElement("");
-  invAdd.addElement(obj.addressBilling.name);
-  invAdd.addElement(obj.addressBilling.streetAddressLine1);
-  invAdd.addElement(obj.addressBilling.postalArea);
-  invAdd.addElement("");
-  invAdd.addElement(obj.addressBilling.postalCode);
-  invAdd.addElement(obj.addressBilling.country);
+  if (obj.addressBilling.name || obj.addressBilling.streetAddressLine1 || obj.addressBilling.postalArea || obj.addressBilling.postalCode || obj.addressBilling.country) {
+    invAdd.addElement("");
+    invAdd.addElement("");
+    invAdd.addElement(obj.addressBilling.name);
+  }
+  if (obj.addressBilling.streetAddressLine1 || obj.addressBilling.postalArea || obj.addressBilling.postalCode || obj.addressBilling.country)
+    invAdd.addElement(obj.addressBilling.streetAddressLine1);
+  if (obj.addressBilling.postalArea || obj.addressBilling.postalCode || obj.addressBilling.country)
+    invAdd.addElement(obj.addressBilling.postalArea);
+  if (obj.addressBilling.postalCode || obj.addressBilling.country) {
+    invAdd.addElement("");
+    invAdd.addElement(obj.addressBilling.postalCode);
+
+  }
+  if (obj.addressBilling.country)
+    invAdd.addElement(obj.addressBilling.country);
+
 
   //CUX+5:EUR'	<-- Currency
   //CUX+C504+C504+5402+6341
@@ -193,7 +212,7 @@ const jsonToEdi = function (obj) {
     sItem.addElement(obj.orderLine[i].idLocal);
     sItem.addElement("");
     let c7 = new edi.LightWeightElement();
-    c7.addCompositeElement(obj.orderLine[i].idSystemLocal);
+    c7.addCompositeElement(obj.orderLine[i].product.supplierCode);
     c7.addCompositeElement("ZZ5");
     sItem.elements.add(c7)
 
@@ -208,9 +227,9 @@ const jsonToEdi = function (obj) {
     c8.addCompositeElement("-")
     c8.addCompositeElement("");
     c8.addCompositeElement("");
-    c8.addCompositeElement(obj.orderLine[i].product.descriptionGeneral.slice(0,35));//LENGTH 35
+    c8.addCompositeElement(obj.orderLine[i].product.descriptionGeneral.slice(0, 35));//LENGTH 35
     if (obj.descriptionGeneral.length > 35)
-    c8.addCompositeElement(obj.orderLine[i].product.descriptionGeneral.slice(35,70));
+      c8.addCompositeElement(obj.orderLine[i].product.descriptionGeneral.slice(35, 70));
     iName.elements.add(c8)
 
     //QTY+21:60.000:M'    <-- Ordered quantity + unit of measure
@@ -258,9 +277,7 @@ const jsonToEdi = function (obj) {
 
   //Display the new EDI document
   let edidata = doc.generateEDIData();
-  //console.log(edidata)
 
-  //console.log(obj)
   return edidata
 }
 
@@ -275,6 +292,7 @@ const ediToJson = function (data) {
     "reference": "WPLRZ63F / Krs. 4 / A401",
     "codeQr": "<PO>B65DEA96-4A69-4F3E-A348-0FA4EB8CC4AE",
     "descriptionGeneral": "",
+    "totalAmount": "",
     "sender": {
       "@type": "DataProduct",
       "productCode": "purchase-order-from-cals"
@@ -380,6 +398,8 @@ const ediToJson = function (data) {
           break;
         case "UNH":
           // code block
+
+
           for (let i = 0; i < segment.elements.Count; i++) {
             switch (i) {
               case 0:
@@ -483,64 +503,171 @@ const ediToJson = function (data) {
             "@type": "OrderLine",
             "idLocal": "",
             "idSystemLocal": "",
+            "deliveryDate": "",
+            "monetory": "",
             "quantity": null,
+            "price": null,
+            "order": "",
+            "orderLine": "",
+            "discount": "",
             "unit": "",
             "product": {
               "@type": "Product",
-              "idLocal": "f60dcb97-e3ff-4bae-88c6-f8cdb94d195d",
+              "idLocal": "",
               "codeProduct": "KN64",
               "descriptionGeneral": "",
-              "gtin": null
+              "gtin": null,
+              "supplierCode": "",
+
             }
           }
           for (let j = 0; j < segment.elements.Count; j++) {
             switch (j) {
               case 0:
                 let linItem = segment.elements.getItem(0)
-                item.idLocal=linItem.dataValue
+                item.idLocal = linItem.dataValue
                 break;
-                case 2:
+              case 2:
                 let value = segment.elements.getItem(2)
                 if (value.Composite) {
                   let compositeValue = value.elements.getItem(0)
-                  item.idSystemLocal=compositeValue.dataValue
+                  item.product.supplierCode = compositeValue.dataValue
                 }
                 break;
             }
           }
           i = i + 1;
           let itemImd = segments.getItem(i)
-          for (let k = 0; k < itemImd.elements.Count; k++) {
-            switch (k) {
-                case 2:
-                let value = itemImd.elements.getItem(2)
-                if (value.Composite) {
-                 let compositeValue = value.elements.getItem(3)
-                item.product.descriptionGeneral=compositeValue.dataValue
-                if(value.elements.Count==5){
-                  let compositeValue = value.elements.getItem(4)
-                  item.product.descriptionGeneral=item.product.descriptionGeneral.concat(compositeValue.dataValue)
+          while (itemImd.name == 'IMD' || itemImd.name == 'QTY' || itemImd.name == 'DTM' || itemImd.name == 'MOA' ||
+            itemImd.name == 'PRI' || itemImd.name == 'RFF' || itemImd.name == 'ALC') {
+            switch (itemImd.name) {
+              case "IMD":
+                // code block
+                for (let k = 0; k < itemImd.elements.Count; k++) {
+                  switch (k) {
+                    case 2:
+                      let value = itemImd.elements.getItem(2)
+                      if (value.Composite) {
+                        let compositeValue = value.elements.getItem(3)
+                        item.product.descriptionGeneral = compositeValue.dataValue
+                        if (value.elements.Count == 5) {
+                          let compositeValue = value.elements.getItem(4)
+                          item.product.descriptionGeneral = item.product.descriptionGeneral.concat(compositeValue.dataValue)
+                        }
+                      }
+                      break;
+                  }
                 }
+                break;
+              case "QTY":
+                // code block
+                for (let k = 0; k < itemImd.elements.Count; k++) {
+                  switch (k) {
+                    case 0:
+                      let value = itemImd.elements.getItem(0)
+                      if (value.Composite) {
+                        let compositeValue1 = value.elements.getItem(1)
+                        item.quantity = parseInt(compositeValue1.dataValue)
+                        // let compositeValue2 = value.elements.getItem(2)
+                        // item.unit = compositeValue2.dataValue
+                      }
+                      break;
+                  }
+                }
+                break;
+              case "DTM":
+                for (let j = 0; j < itemImd.elements.Count; j++) {
+                  switch (j) {
+                    case 0:
+                      let value = itemImd.elements.getItem(0)
+                      if (value.Composite) {
+                        for (let k = 0; k < value.elements.Count; k++) {
+                          let compositeValue = value.elements.getItem(k)
+                          if (compositeValue.dataValue == 69) {
+                            k = k + 1;
+                            let deliveryDate = value.elements.getItem(k)
+                            item.deliveryDate = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
+                          }
+                        }
+                      }
+                      break;
+                  }
+                }
+                break;
+              case "MOA":
+                for (let j = 0; j < itemImd.elements.Count; j++) {
+                  switch (j) {
+                    case 0:
+                      let value = itemImd.elements.getItem(0)
+                      if (value.Composite) {
+                        let compositeValue = value.elements.getItem(1)
+                        item.monetory = compositeValue.dataValue
+                      }
+                      break;
+                  }
+                }
+                break;
+              case "PRI":
+                for (let k = 0; k < itemImd.elements.Count; k++) {
+                  switch (k) {
+                    case 0:
+                      let value = itemImd.elements.getItem(0)
+                      if (value.Composite) {
+                        let compositeValue1 = value.elements.getItem(1)
+                        item.price = compositeValue1.dataValue
+                        let compositeValue2 = value.elements.getItem(4)
+                        item.unit = compositeValue2.dataValue == 1 ? 'KPL' : compositeValue2.dataValue + ' KPL'
+                      }
+                      break;
+                  }
+                }
+
+                break;
+              case 'RFF':
+                for (let k = 0; k < itemImd.elements.Count; k++) {
+                  switch (k) {
+                    case 0:
+                      let value = itemImd.elements.getItem(0)
+                      if (value.Composite) {
+                        let compositeValue1 = value.elements.getItem(1)
+                        item.order = compositeValue1.dataValue
+                        let compositeValue2 = value.elements.getItem(2)
+                        item.orderLine = compositeValue2.dataValue
+                      }
+                      break;
+                  }
+                }
+                break;
+              case "ALC":
+                // code block
+
+                i = i + 1;
+                let alcValue = segments.getItem(i)
+                if (alcValue.name == 'PCD') {
+                  for (let k = 0; k < alcValue.elements.Count; k++) {
+                    switch (k) {
+                      case 0:
+                        let value = alcValue.elements.getItem(0)
+                        if (value.Composite) {
+                          // let compositeValue1 = value.elements.getItem(1)
+                          // item.price = compositeValue1.dataValue
+                          let compositeValue2 = value.elements.getItem(1)
+                          item.discount = compositeValue2.dataValue
+                        }
+                        break;
+                    }
+                  }
+                } else {
+                  i = i - 1;
                 }
                 break;
             }
+            i = i + 1;
+            itemImd = segments.getItem(i)
+
           }
-          i = i + 1;
-          let itemQty = segments.getItem(i)
-          for (let k = 0; k < itemQty.elements.Count; k++) {
-            switch (k) {
-                case 0:
-                let value = itemQty.elements.getItem(0)
-                if (value.Composite) {
-                let compositeValue1 = value.elements.getItem(1)
-                item.quantity=parseInt(compositeValue1.dataValue)
-                let compositeValue2 = value.elements.getItem(2)
-                item.unit=compositeValue2.dataValue
-                }
-                break;
-            }
-          }
-          i = i + 1;
+
+          i = i - 1;
           tempObj.orderLine.push(item)
           break;
         // case "IMD":
@@ -549,6 +676,19 @@ const ediToJson = function (data) {
         // case "QTY":
         //   // code block
         //   break;
+        case "MOA":
+          for (let j = 0; j < segment.elements.Count; j++) {
+            switch (j) {
+              case 0:
+                let value = segment.elements.getItem(0)
+                if (value.Composite) {
+                  let compositeValue = value.elements.getItem(1)
+                  tempObj.totalAmount = compositeValue.dataValue
+                }
+                break;
+            }
+          }
+          break;
         case "UNT":
           // code block
           break;
@@ -556,9 +696,11 @@ const ediToJson = function (data) {
           // code block
           break;
 
+
       }
     }
   }
+  console.log(tempObj.orderLine)
   return tempObj
 }
 module.exports = { jsonToEdi, ediToJson }
