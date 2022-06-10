@@ -1,0 +1,24 @@
+{
+    "template": "fidelix-2",
+    "static": {
+      "ipAddress": "",
+      "username": "",
+      "password": "",
+      "type": "MeasureAirTemperatureCelsiusDegree"
+    },
+    "dynamic": {
+      "authConfig.path":  [
+          "targetObject"
+      ]
+  },
+    "request": {
+      "targetObject": [{
+        "processTargetId": "<processTargetId>",
+        "state":"<state>",
+        "processValue":"<processValue>"
+    }]
+
+    
+    }
+  }
+  
