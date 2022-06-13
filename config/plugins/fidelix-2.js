@@ -13,11 +13,6 @@ const _ = require('lodash');
  * @return {Object}
  */
 const template = async (config, template) => {
-    console.log(template.authConfig.path)
-    template.authConfig.path.val = template.authConfig.path[0].val[0].processValue //parseFloat(template.authConfig.path.val)
-    template.authConfig.path = template.authConfig.path;
-    console.log(template.authConfig.path)
-
     return template;
 };
 
@@ -70,32 +65,27 @@ const response = async (config, response) => {
  */
 const output = async (config, output) => {
    
-    var arr = [];
-console.log(config.parameters.targetObjectpointId)
-    output.data.sensors.forEach(function (item) {
+    // var arr = [];
+    // output.data.sensors.forEach(function (item) {
 
-        item.measurements.forEach((data) => {
-            console.log(data)
-            arr.push(
-                {
-                "measurements": [
-                    data
-                ],
-                "pointId":  config.parameters.targetObject.pointId
-            }
-            )
-        });
-    });
+    //     item.measurements.forEach((data) => {
+    //         arr.push(
+    //             {
+    //                 data
+    //             }
+    //         )
+    //     });
+    // });
    
 
-    const result = {
-        [config.output.context]: config.output.contextValue,
-        [config.output.object]: {
-            [config.output.array]: arr,
-        },
-    };
+    // const result = {
+    //     [config.output.context]: config.output.contextValue,
+    //     [config.output.object]: {
+    //         [config.output.array]: arr,
+    //     },
+    // };
 
-    return result;
+    return output;
     
 };
 
