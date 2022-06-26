@@ -31,13 +31,8 @@ const response = async (config, response) => {
 
     // 1. One value per request (latest).
     const single = 'setPointDataResult';
-
-
-
     try {
-       if (Object.hasOwnProperty.call(response, single)) {
-        console.log(response)
-
+        if (Object.hasOwnProperty.call(response, single)) {
             const data = {
                 [single]: response['setPointDataResult'],
                 hardwareId: response.hardwareId['point_id'],
@@ -46,8 +41,6 @@ const response = async (config, response) => {
         } else {
             result = response;
         }
-        
-
         return result;
     } catch (e) {
         return result;
@@ -64,29 +57,77 @@ const response = async (config, response) => {
  * @return {Object}
  */
 const output = async (config, output) => {
-   
-    // var arr = [];
-    // output.data.sensors.forEach(function (item) {
+    var arr = [];
+    if(output.data.process.length>0){
+        output.data.process.forEach(function (item) {
 
-    //     item.measurements.forEach((data) => {
-    //         arr.push(
-    //             {
-    //                 data
-    //             }
-    //         )
-    //     });
-    // });
-   
+            item.measurements.forEach((data) => {
+                arr.push(
+                    {
+                        "@type":  config.parameters.targetObject[0]['@type'],
+                        "location": {
+                            "idLocal": config.authConfig.path.point_id
+                        },
+                        "processTarget": config.parameters.targetObject[0].processTarget,
+                    "processTargetId": config.parameters.targetObject[0].processTargetId,
+                    "physicalProperty": config.parameters.targetObject[0].physicalProperty,
+                    "status": [
+                        {
+                            "value": data.result===true ? "Completed" :"Failed" 
+                          //  "statusReason": "<error response in string format here>" --> "500 - Internal server error" 
+                        }
+                    ],
+                    "processValue": [
+                        {
+                            "@type": config.parameters.targetObject[0].processValue[0]['@type'],
+                            "processValue":config.parameters.targetObject[0].processValue[0].processValue,
+                            "exactTime": data.timestamp,
+                            "unitOfMeasure": config.parameters.targetObject[0].processValue[0].unitOfMeasure
+                        }
+                    ]
+                    }
+                )
+            });
+        });
+    }else if(output.data.process.length==0){
+        arr.push(
+            {
+                "@type":  config.parameters.targetObject[0]['@type'],
+                "location": {
+                    "idLocal": config.authConfig.path.point_id
+                },
+                "processTarget": config.parameters.targetObject[0].processTarget,
+            "processTargetId": config.parameters.targetObject[0].processTargetId,
+            "physicalProperty": config.parameters.targetObject[0].physicalProperty,
+            "status": [
+                {
+                    "value":"Failed" ,
+                    "statusReason": "" 
+                }
+            ],
+            "processValue": [
+                {
+                    "@type": config.parameters.targetObject[0].processValue[0]['@type'],
+                    "processValue":config.parameters.targetObject[0].processValue[0].processValue,
+                    "exactTime": config.timestamp,
+                    "unitOfMeasure": config.parameters.targetObject[0].processValue[0].unitOfMeasure
+                }
+            ]
+            }
+        )
+    }
+  
 
-    // const result = {
-    //     [config.output.context]: config.output.contextValue,
-    //     [config.output.object]: {
-    //         [config.output.array]: arr,
-    //     },
-    // };
 
-    return output;
-    
+    const result = {
+        [config.output.context]: config.output.contextValue,
+        [config.output.object]: {
+            [config.output.array]: arr,
+        },
+    };
+
+    return result;
+
 };
 
 /**
@@ -96,6 +137,5 @@ module.exports = {
     name: 'fidelix-2',
     template,
     response,
-    
     output,
 };
