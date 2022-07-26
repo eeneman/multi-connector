@@ -1,6 +1,4 @@
 'use strict';
-const _ = require('lodash');
-
 
 /**
  * Composes authorization header and
@@ -12,18 +10,6 @@ const _ = require('lodash');
  */
 const request = async (config, options) => {
     try {
-        // Check for necessary information.
-        if (!config.authConfig.username || !config.authConfig.password) {
-            return promiseRejectWithError(500, 'Insufficient authentication configurations.');
-        }
-
-        var username = config.authConfig.username;
-        var password = config.authConfig.password;
-        var auth = 'Basic ' + Buffer.from(username + ':' + password).toString('base64');
-        options.rejectUnauthorized = false,
-            options.headers = {
-                "Authorization": auth,
-            }
         return options;
     }
     catch (err) {
@@ -60,22 +46,16 @@ const output = async (config, output) => {
             arr.push({
                 "measurements": [
                     {
-                        "@type": config.measurementType,
+                        "@type": data.result.Component,
                         "timestamp": data.timestamp,
-                        "value": (data.result.used == 1 ? true : false)
+                        "value": data.result.Value
                     }
                 ],
-                "id":  data.result.vendor_id
+                "id":  data.result.Tag
             })
         });
     });
-    let vendorIds = config.parameters.ids.map(function (element) {
-        return element.id;
-    })
-    // filter Based On ids
-    if (vendorIds.length > 0) {
-        arr = _.filter(arr, function (o) { return vendorIds.includes(o.id) });
-    }
+   
 
     const result = {
         [config.output.context]: config.output.contextValue,
@@ -88,8 +68,9 @@ const output = async (config, output) => {
 }
 
 
+
 module.exports = {
-    name: 'metropolia-parking-occupancy',
+    name: 'stavanger',
     request,
     output,
     response

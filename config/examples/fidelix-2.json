@@ -4,21 +4,25 @@
       "ipAddress": "",
       "username": "",
       "password": "",
-      "type": "MeasureAirTemperatureCelsiusDegree"
+      "state":"MANUAL"
     },
     "dynamic": {
-      "authConfig.path":  [
-          "targetObject"
-      ]
+      "authConfig.path.point_id": "targetObject.0.location.idLocal",
+      "authConfig.path.val": "targetObject.0.processValue.0.processValue"
   },
     "request": {
       "targetObject": [{
-        "processTargetId": "<processTargetId>",
-        "state":"<state>",
-        "processValue":"<processValue>"
-    }]
+        "location":{
+          "idLocal": "<idLocal>"
+        },
+        "processValue" :[
+          {
+            "processValue":"<processValue>"
+          }
+        ]
+    }
 
-    
+  ]
     }
   }
   

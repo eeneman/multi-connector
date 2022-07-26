@@ -1,19 +1,18 @@
 {
     "plugins": [
-      "metropolia-parking-occupancy"
+      "stavanger"
     ],
     "protocol": "rest",
     "authConfig": {
       "url": "${url}",
-      "authContentType": "application/json",
       "username": "${username}",
       "password": "${password}",
       "headers": {
-        "Authorization": ""
-      },
-      "path": "/occupancy"
+        "Cache-Control": "no-cache",
+        "Ocp-Apim-Subscription-Key": "${Subscription-Key}"
     },
-    "measurementType": "Occupancy",
+      "path": "/getdata?Tag=${id}"
+    },
     "dataObjects": [
       ""
     ],
