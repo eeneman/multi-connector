@@ -1,0 +1,53 @@
+{
+    "plugins": [
+        "stavanger-post"
+    ],
+    "protocol": "rest",
+    "authConfig": {
+        "method": "POST",
+        "url": "${url}",
+        "username": "${username}",
+        "password": "${password}",
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+            "Ocp-Apim-Subscription-Key": "${Subscription-Key}"
+        },
+        "body": "${targetObject}",
+        "path": "/postsetpoints"
+    },
+    "dataObjects": [
+        ""
+    ],
+    "dataPropertyMappings": {
+        "": ""
+    },
+    "generalConfig": {
+        "query": {},
+        "sourceName": {
+            "dataObjectProperty": "name"
+        },
+        "hardwareId": {
+            "pathIndex": 4
+        },
+        "measurement": {
+            "pathIndex": 5
+        },
+        "timestamp": {
+            "dataObjectProperty": "timestamp"
+        }
+    },
+    "input": {
+        "required": [
+            "parameters.targetObject"
+        ]
+    },
+    "output": {
+        "contextValue": "https://standards.oftrust.net/v2/Context/DataProductContext/Sensor/",
+        "array": "sensors",
+        "object": "data",
+        "value": "result",
+        "data": "measurements",
+        "id": "id"
+    }
+}

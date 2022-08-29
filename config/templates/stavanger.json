@@ -11,7 +11,7 @@
         "Cache-Control": "no-cache",
         "Ocp-Apim-Subscription-Key": "${Subscription-Key}"
     },
-      "path": "/getdata?Tag=${id}"
+      "path": "/getsetpoints?Tag=${id}"
     },
     "dataObjects": [
       ""
