@@ -1,0 +1,20 @@
+{
+    "template": "stavanger-post",
+    "static": {
+        "url": "https://api.datasjo.stavanger.kommune.no/citect/v1.0/citect",
+        "Subscription-Key": ""
+    },
+    "dynamic": {
+        "authConfig.body": [
+            "targetObject"
+          ]
+    },
+    "request": {
+        "targetObject": [
+            {
+                "Tag": "<tag>",
+                "Value": "<val>"
+            }
+        ]
+    }
+}
