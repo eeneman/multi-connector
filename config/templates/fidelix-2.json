@@ -6,7 +6,7 @@
     ],
     "protocol": "soap",
     "authConfig": {
-      "url": "https://${ipAddress}/WebServices/Fidelix.asmx",
+      "url": "https://${ipAddress}/WebServices/Fidelix.asmx?WSDL",
       "username": "${username}",
       "password": "${password}",
       "headers": "${headers}",
