@@ -75,7 +75,7 @@ const jsonToEdi = function (obj) {
   let deliveryDate = deliveryDateLoop.createSegment("DTM");
   let c5 = new edi.LightWeightElement();
   c5.addCompositeElement("2");
-  c5.addCompositeElement(moment(obj.deliveryRequired, 'yyyy-mm-DD').format('YYYYMMDD'));
+  c5.addCompositeElement(moment(obj.processDelivery.deliveryRequired, 'yyyy-mm-DD').format('YYYYMMDD'));
   c5.addCompositeElement("102");
   deliveryDate.elements.add(c5)
 
@@ -87,18 +87,18 @@ const jsonToEdi = function (obj) {
   let ftxt = freeTextLoop.createSegment("FTX");
   ftxt.addElement("AAI");
   ftxt.addElement("1");
-  if (obj.descriptionGeneral) {
+  if (obj.processDelivery.additionalInformation) {
     ftxt.addElement("");
     let ftcomp = new edi.LightWeightElement();
-    ftcomp.addCompositeElement(obj.descriptionGeneral.slice(0, 70));
-    if (obj.descriptionGeneral.length > 70)
-      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(70, 140));
-    if (obj.descriptionGeneral.length > 140)
-      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(140, 210));
-    if (obj.descriptionGeneral.length > 210)
-      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(210, 280));
-    if (obj.descriptionGeneral.length > 280)
-      ftcomp.addCompositeElement(obj.descriptionGeneral.slice(280, 350));
+    ftcomp.addCompositeElement(obj.processDelivery.additionalInformation.slice(0, 70));
+    if (obj.processDelivery.additionalInformation.length > 70)
+      ftcomp.addCompositeElement(obj.processDelivery.additionalInformation.slice(70, 140));
+    if (obj.processDelivery.additionalInformation.length > 140)
+      ftcomp.addCompositeElement(obj.processDelivery.additionalInformation.slice(140, 210));
+    if (obj.processDelivery.additionalInformation.length > 210)
+      ftcomp.addCompositeElement(obj.processDelivery.additionalInformation.slice(210, 280));
+    if (obj.processDelivery.additionalInformation.length > 280)
+      ftcomp.addCompositeElement(obj.processDelivery.additionalInformation.slice(280, 350));
     ftxt.elements.add(ftcomp)
   }
   //NAD+BY+BOCTOKOVT++Boctok Oy'	<-- Buyer OVT/GLN, Buyer name
@@ -110,10 +110,10 @@ const jsonToEdi = function (obj) {
   let buyerNameLoop = messageLoop.createLoop("Buyer Name")
   let bName = buyerNameLoop.createSegment("NAD");
   bName.addElement("BY");
-  bName.addElement("BOCTOKOVT");
+  bName.addElement(obj.buyer.idLocal);
   if (obj.customer.name) {
     bName.addElement("");
-    bName.addElement(obj.customer.name)
+    bName.addElement(obj.buyer.name)
   }
 
   //NAD+SE+003709924664'	<-- Seller OVT, Dahl generic/HQ
@@ -126,6 +126,14 @@ const jsonToEdi = function (obj) {
   let seller = sellerLoop.createSegment("NAD");
   seller.addElement("SE");
   seller.addElement("003709924664");
+  seller.addElement("");
+  seller.addElement("");
+  seller.addElement("");
+  seller.addElement("");
+  seller.addElement("");
+  seller.addElement("");
+  seller.addElement(obj.seller.contact.countryCode);
+
 
   // NAD+DP  +    +    +Boctok Oy+Perintökuja 1+VANTAA++01510+FI' <-- Delivery address
   //NAD+3035+C082+C058+C080     +C059         +3164  +3229+3251+3207
@@ -284,103 +292,64 @@ const jsonToEdi = function (obj) {
 const ediToJson = function (data) {
 
   const tempObj = {
-    "@type": "OrderInformation",
+    "@type": "OrderConfirmation",
     "idLocal": "",
-    "idSystemLocal": "b65dea96-4a69-4f3e-a348-0fa4eb8cc4ae",
     "ordered": "",
-    "deliveryRequired": "",
-    "reference": "WPLRZ63F / Krs. 4 / A401",
-    "codeQr": "<PO>B65DEA96-4A69-4F3E-A348-0FA4EB8CC4AE",
-    "descriptionGeneral": "",
-    "totalAmount": "",
-    "sender": {
-      "@type": "DataProduct",
-      "productCode": "purchase-order-from-cals"
-    },
-    "receiver": {
-      "@type": "DataProduct",
-      "productCode": "898AA5C6-5A6C-482A-B48A-B463B8D4370B"
-    },
-    "project": {
-      "@type": "Project",
+    "orderLine": [],
+    "buyer": {
+      "@type": "Organization",
+      "name": "",
       "idLocal": "",
-      "idSystemLocal": "d452827e-17c3-4a13-b608-72a79e981bc6",
-      "name": "Testi projekti"
-    },
-    "contact": {
-      "@type": "Person",
-      "name": "Otto Ostaja",
-      "contactInformation": {
+      "contact": {
         "@type": "ContactInformation",
-        "addressEmail": "testi.ostaja@c4.fi",
-        "phoneNumber": "0441254587"
-      }
-    },
-    "customer": {
-      "@type": "Organization",
-      "idLocal": "be9eb81a-8018-4e40-8cd9-79132d1c4c1c",
-      "idOfficial": "1234568",
-      "name": ""
-    },
-    "vendor": {
-      "@type": "Organization",
-      "idLocal": "898AA5C6-5A6C-482A-B48A-B463B8D4370B",
-      "idSystemLocal": "2a460581-b93c-428a-887d-d304094733bb",
-      "idOfficial": "",
-      "name": "Dahl",
-      "contactInformation": {
-        "@type": "ContactInformation",
-        "streetAddressLine1": "",
-        "postalCode": "",
         "postalArea": "",
-        "country": ""
-      },
-      "customer": {
-        "@type": "Organization",
-        "idLocal": null
+        "postalCode": "",
+        "countryCode": "",
+        "streetAddressLine1": ""
       }
     },
-    "productGroup": {
-      "@type": "ProductGroup",
-      "idLocal": "WPLRZ63F",
-      "locationFinal": {
-        "@type": "Location",
-        "name": "Pasilan työmaa / Krs. 4 / A401"
-      },
-      "process": {
-        "@type": "Process",
-        "name": "Runko / Levytys"
-      },
-      "operator": {
-        "@type": "LegalParty",
-        "name": "Olli Operaattori",
+    "seller": {
+      "@type": "Organization",
+      "idLocal": "",
+      "contact": {
+        "@type": "ContactInformation",
+        "postalArea": "",
+        "postalCode": "",
+        "countryCode": "",
+        "streetAddressLine1": ""
+      }
+    },
+    "processBilling": {
+      "@type": "Organization",
+      "name": "",
+      "contact": {
+        "@type": "ContactInformation",
+        "postalArea": "",
+        "postalCode": "",
+        "countryCode": "",
+        "streetAddressLine1": "",
+      }
+    },
+    "processDelivery": {
+      "@type": "ProcessDelivery",
+      "deliveryRequired": "",
+      "additionalInformation": "",
+      "addressShipping": {
+        "@type": "Organization",
+        "name": "",
         "contact": {
           "@type": "ContactInformation",
-          "name": "Onni Operaattori",
-          "phoneNumber": "0408945621"
+          "postalArea": "",
+          "postalCode": "",
+          "countryCode": "",
+          "streetAddressLine1": ""
         }
       }
     },
-    "addressShipping": {
-      "@type": "ContactInformation",
-      "idLocal": "74a1d6aa-ee2c-45ff-a9be-fbb98607c86f",
-      "name": "",
-      "streetAddressLine1": "",
-      "postalCode": "",
-      "postalArea": "",
-      "country": ""
-    },
-    "addressBilling": {
-      "@type": "ContactInformation",
-      "idSystemLocal": "d452827e-17c3-4a13-b608-72a79e981bc6",
-      "name": "",
-      "streetAddressLine1": "",
-      "postalCode": "",
-      "postalArea": "",
-      "country": ""
-    },
-    "orderLine": [
-    ]
+    "sender": {
+      "@type": "DataProduct",
+      "productCode": ""
+    }
   }
   let fileLoader = new edi.EDIFileLoader();
   fileLoader.EDIDataString = data;
@@ -398,19 +367,18 @@ const ediToJson = function (data) {
           break;
         case "UNH":
           // code block
-
-
+          break;
+        case "BGM":
+          // code block
+          
           for (let i = 0; i < segment.elements.Count; i++) {
             switch (i) {
-              case 0:
-                let value = segment.elements.getItem(0)
+              case 1:
+                let value = segment.elements.getItem(1)
                 tempObj.idLocal = value.dataValue
                 break;
             }
           }
-          break;
-        case "BGM":
-          // code block
           break;
         case "DTM":
           for (let j = 0; j < segment.elements.Count; j++) {
@@ -424,10 +392,11 @@ const ediToJson = function (data) {
                       k = k + 1;
                       let orderedDate = value.elements.getItem(k)
                       tempObj.ordered = moment(orderedDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
-                    } else if (compositeValue.dataValue == 2) {
+                    }
+                    else if (compositeValue.dataValue == 2) {
                       k = k + 1;
                       let deliveryDate = value.elements.getItem(k)
-                      tempObj.deliveryRequired = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
+                      tempObj.processDelivery.deliveryRequired = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
                     }
                   }
                 }
@@ -444,7 +413,7 @@ const ediToJson = function (data) {
                 if (value.Composite) {
                   for (let k = 0; k < value.elements.Count; k++) {
                     let compositeValue = value.elements.getItem(k)
-                    tempObj.descriptionGeneral = tempObj.descriptionGeneral.concat(compositeValue.dataValue)
+                    tempObj.processDelivery.additionalInformation = tempObj.processDelivery.additionalInformation.concat(compositeValue.dataValue)
                   }
                 }
                 break;
@@ -452,40 +421,116 @@ const ediToJson = function (data) {
           }
           break;
         case "NAD":
-          let value = segment.elements.getItem(0)
-          switch (value.dataValue) {
-            case 'BY':
-              let buyer = segment.elements.getItem(3)
-              tempObj.customer.name = buyer.dataValue
-              break;
-            // case 'SE':
-            //   let seller = segment.elements.getItem(3)
-            //   tempObj.customer.name = seller.dataValue
-            //   break;
-            case 'DP':
-              let name = segment.elements.getItem(3)
-              tempObj.addressShipping.name = name.dataValue
-              let streetAddressLine1 = segment.elements.getItem(4)
-              tempObj.addressShipping.streetAddressLine1 = streetAddressLine1.dataValue
-              let postalArea = segment.elements.getItem(5)
-              tempObj.addressShipping.postalArea = postalArea.dataValue
-              let postalCode = segment.elements.getItem(7)
-              tempObj.addressShipping.postalCode = postalCode.dataValue
-              let country = segment.elements.getItem(8)
-              tempObj.addressShipping.country = country.dataValue
-              break;
-            case 'IV':
-              let ivName = segment.elements.getItem(3)
-              tempObj.addressBilling.name = ivName.dataValue
-              let ivStreetAddressLine1 = segment.elements.getItem(4)
-              tempObj.addressBilling.streetAddressLine1 = ivStreetAddressLine1.dataValue
-              let ivPostalArea = segment.elements.getItem(5)
-              tempObj.addressBilling.postalArea = ivPostalArea.dataValue
-              let ivPostalCode = segment.elements.getItem(7)
-              tempObj.addressBilling.postalCode = ivPostalCode.dataValue
-              let ivCountry = segment.elements.getItem(8)
-              tempObj.addressBilling.country = ivCountry.dataValue
-              break;
+          if (segment.elements.Count > 0) {
+            let value = segment.elements.getItem(0)
+            switch (value.dataValue) {
+              case 'BY':
+                if (segment.elements.Count > 0) {
+                  let idLocalBY = segment.elements.getItem(1)
+                  tempObj.buyer.idLocal = idLocalBY.dataValue
+                }
+                if (segment.elements.Count > 3) {
+                  let buyerBY = segment.elements.getItem(3)
+                  tempObj.buyer.name = buyerBY.dataValue
+                }
+                if (segment.elements.Count > 4) {
+
+                  let streetAddressLine1BY = segment.elements.getItem(4)
+                  tempObj.buyer.contact.streetAddressLine1 = streetAddressLine1BY.dataValue
+                }
+                if (segment.elements.Count > 5) {
+                  let postalAreaBY = segment.elements.getItem(5)
+                  tempObj.buyer.contact.postalArea = postalAreaBY.dataValue
+                }
+                if (segment.elements.Count > 7) {
+                  let postalCodeBY = segment.elements.getItem(7)
+                  tempObj.buyer.contact.postalCode = postalCodeBY.dataValue
+                }
+                if (segment.elements.Count > 8) {
+                  let countryBY = segment.elements.getItem(8)
+                  tempObj.buyer.contact.countryCode = countryBY.dataValue
+                }
+                break;
+              case 'SE':
+                if (segment.elements.Count > 0) {
+                  let idLocalSE = segment.elements.getItem(1)
+                  tempObj.seller.idLocal = idLocalSE.dataValue
+                }
+                if (segment.elements.Count > 3) {
+                  let sellerSE = segment.elements.getItem(3)
+                  tempObj.seller.name = sellerSE.dataValue
+                }
+                if (segment.elements.Count > 4) {
+
+                  let streetAddressLine1SE = segment.elements.getItem(4)
+                  tempObj.seller.contact.streetAddressLine1 = streetAddressLine1SE.dataValue
+                }
+                if (segment.elements.Count > 5) {
+                  let postalAreaSE = segment.elements.getItem(5)
+                  tempObj.seller.contact.postalArea = postalAreaSE.dataValue
+                }
+                if (segment.elements.Count > 7) {
+                  let postalCodeSE = segment.elements.getItem(7)
+                  tempObj.seller.contact.postalCode = postalCodeSE.dataValue
+                }
+                if (segment.elements.Count > 8) {
+                  let countrySE = segment.elements.getItem(8)
+                  tempObj.seller.contact.countryCode = countrySE.dataValue
+                }
+                break;
+              case 'DP':
+                if (segment.elements.Count > 0) {
+                  let idLocalDP = segment.elements.getItem(1)
+                  tempObj.processDelivery.idLocal = idLocalDP.dataValue
+                }
+                if (segment.elements.Count > 3) {
+                  let nameDP = segment.elements.getItem(3)
+                  tempObj.processDelivery.addressShipping.name = nameDP.dataValue
+                }
+                if (segment.elements.Count > 4) {
+                  let streetAddressLine1DP = segment.elements.getItem(4)
+                  tempObj.processDelivery.addressShipping.contact.streetAddressLine1 = streetAddressLine1DP.dataValue
+                }
+                if (segment.elements.Count > 5) {
+                  let postalAreaDP = segment.elements.getItem(5)
+                  tempObj.processDelivery.addressShipping.contact.postalArea = postalAreaDP.dataValue
+                }
+                if (segment.elements.Count > 7) {
+                  let postalCodeDP = segment.elements.getItem(7)
+                  tempObj.processDelivery.addressShipping.contact.postalCode = postalCodeDP.dataValue
+                }
+                if (segment.elements.Count > 8) {
+                  let countryDP = segment.elements.getItem(8)
+                  tempObj.processDelivery.addressShipping.contact.countryCode = countryDP.dataValue
+                }
+                break;
+              case 'IV':
+                if (segment.elements.Count > 0) {
+                  let idLocalIV = segment.elements.getItem(1)
+                  tempObj.processBilling.idLocal = idLocalIV.dataValue
+                }
+                if (segment.elements.Count > 3) {
+                  let nameIV = segment.elements.getItem(3)
+                  tempObj.processBilling.name = nameIV.dataValue
+                }
+                if (segment.elements.Count > 4) {
+                  let streetAddressLine1IV = segment.elements.getItem(4)
+                  tempObj.processBilling.contact.streetAddressLine1 = streetAddressLine1IV.dataValue
+                }
+                if (segment.elements.Count > 5) {
+                  let postalAreaIV = segment.elements.getItem(5)
+                  tempObj.processBilling.contact.postalArea = postalAreaIV.dataValue
+                }
+                if (segment.elements.Count > 7) {
+                  let postalCodeIV = segment.elements.getItem(7)
+                  tempObj.processBilling.contact.postalCode = postalCodeIV.dataValue
+                }
+                if (segment.elements.Count > 8) {
+                  let countryIV = segment.elements.getItem(8)
+                  tempObj.processBilling.contact.countryCode = countryIV.dataValue
+                }
+                break;
+            }
           }
           break;
         case "CUX":
@@ -500,38 +545,32 @@ const ediToJson = function (data) {
         case "LIN":
           // code block
           let item = {
-            "@type": "OrderLine",
-            "idLocal": "",
-            "idSystemLocal": "",
-            "deliveryDate": "",
-            "monetory": "",
-            "quantity": null,
-            "price": null,
-            "order": "",
-            "orderLine": "",
-            "discount": "",
-            "unit": "",
-            "product": {
-              "@type": "Product",
-              "idLocal": "",
-              "codeProduct": "KN64",
-              "descriptionGeneral": "",
-              "gtin": null,
-              "supplierCode": "",
-
-            }
-          }
+						"@type": "OrderLine",
+						"idLocal": "",
+						"quantity": null,
+						"unit": "",
+						"pricePerUnit": "",
+						"price": "",
+						"deliveryPlanned": "",
+						"product": {
+							"@type": "Product",
+							"idLocal": "",
+							"name": "",
+							"codeProduct": "",
+							"descriptionGeneral": ""
+						}
+					}
           for (let j = 0; j < segment.elements.Count; j++) {
             switch (j) {
-              case 0:
-                let linItem = segment.elements.getItem(0)
-                item.idLocal = linItem.dataValue
-                break;
+              // case 0:
+              //   let linItem = segment.elements.getItem(0)
+              //   item.idLocal = linItem.dataValue
+              //   break;
               case 2:
                 let value = segment.elements.getItem(2)
                 if (value.Composite) {
                   let compositeValue = value.elements.getItem(0)
-                  item.product.supplierCode = compositeValue.dataValue
+                  item.product.codeProduct = compositeValue.dataValue
                 }
                 break;
             }
@@ -549,10 +588,10 @@ const ediToJson = function (data) {
                       let value = itemImd.elements.getItem(2)
                       if (value.Composite) {
                         let compositeValue = value.elements.getItem(3)
-                        item.product.descriptionGeneral = compositeValue.dataValue
+                        item.product.name = compositeValue.dataValue
                         if (value.elements.Count == 5) {
                           let compositeValue = value.elements.getItem(4)
-                          item.product.descriptionGeneral = item.product.descriptionGeneral.concat(compositeValue.dataValue)
+                          item.product.name = item.product.name.concat(compositeValue.dataValue)
                         }
                       }
                       break;
@@ -568,8 +607,8 @@ const ediToJson = function (data) {
                       if (value.Composite) {
                         let compositeValue1 = value.elements.getItem(1)
                         item.quantity = parseInt(compositeValue1.dataValue)
-                        // let compositeValue2 = value.elements.getItem(2)
-                        // item.unit = compositeValue2.dataValue
+                        let compositeValue2 = value.elements.getItem(2)
+                        item.unit = compositeValue2.dataValue
                       }
                       break;
                   }
@@ -581,14 +620,18 @@ const ediToJson = function (data) {
                     case 0:
                       let value = itemImd.elements.getItem(0)
                       if (value.Composite) {
-                        for (let k = 0; k < value.elements.Count; k++) {
-                          let compositeValue = value.elements.getItem(k)
-                          if (compositeValue.dataValue == 69) {
-                            k = k + 1;
-                            let deliveryDate = value.elements.getItem(k)
-                            item.deliveryDate = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
-                          }
+                        if(value.elements.Count>1){
+                          let deliveryDate = value.elements.getItem(1)
+                          item.deliveryPlanned = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
                         }
+                        // for (let k = 0; k < value.elements.Count; k++) {
+                        //   let compositeValue = value.elements.getItem(k)
+                        //   if (compositeValue.dataValue == 69) {
+                        //     k = k + 1;
+                        //     let deliveryDate = value.elements.getItem(k)
+                        //     item.deliveryPlanned = moment(deliveryDate.dataValue, 'YYYYMMDD').format('YYYY-MM-DDTHH:mm:ss')
+                        //   }
+                        // }
                       }
                       break;
                   }
@@ -600,8 +643,10 @@ const ediToJson = function (data) {
                     case 0:
                       let value = itemImd.elements.getItem(0)
                       if (value.Composite) {
+                        if(value.elements.Count>1){
                         let compositeValue = value.elements.getItem(1)
-                        item.monetory = compositeValue.dataValue
+                        item.price = compositeValue.dataValue
+                        }
                       }
                       break;
                   }
@@ -614,53 +659,53 @@ const ediToJson = function (data) {
                       let value = itemImd.elements.getItem(0)
                       if (value.Composite) {
                         let compositeValue1 = value.elements.getItem(1)
-                        item.price = compositeValue1.dataValue
-                        let compositeValue2 = value.elements.getItem(4)
-                        item.unit = compositeValue2.dataValue == 1 ? 'KPL' : compositeValue2.dataValue + ' KPL'
-                      }
-                      break;
-                  }
-                }
-
-                break;
-              case 'RFF':
-                for (let k = 0; k < itemImd.elements.Count; k++) {
-                  switch (k) {
-                    case 0:
-                      let value = itemImd.elements.getItem(0)
-                      if (value.Composite) {
-                        let compositeValue1 = value.elements.getItem(1)
-                        item.order = compositeValue1.dataValue
-                        let compositeValue2 = value.elements.getItem(2)
-                        item.orderLine = compositeValue2.dataValue
+                        item.pricePerUnit = compositeValue1.dataValue
+                        // let compositeValue2 = value.elements.getItem(4)
+                        // item.unit = compositeValue2.dataValue == 1 ? 'KPL' : compositeValue2.dataValue + ' KPL'
                       }
                       break;
                   }
                 }
                 break;
-              case "ALC":
-                // code block
 
-                i = i + 1;
-                let alcValue = segments.getItem(i)
-                if (alcValue.name == 'PCD') {
-                  for (let k = 0; k < alcValue.elements.Count; k++) {
-                    switch (k) {
-                      case 0:
-                        let value = alcValue.elements.getItem(0)
-                        if (value.Composite) {
-                          // let compositeValue1 = value.elements.getItem(1)
-                          // item.price = compositeValue1.dataValue
-                          let compositeValue2 = value.elements.getItem(1)
-                          item.discount = compositeValue2.dataValue
-                        }
-                        break;
-                    }
-                  }
-                } else {
-                  i = i - 1;
-                }
-                break;
+              // case 'RFF':
+              //   for (let k = 0; k < itemImd.elements.Count; k++) {
+              //     switch (k) {
+              //       case 0:
+              //         let value = itemImd.elements.getItem(0)
+              //         if (value.Composite) {
+              //           let compositeValue1 = value.elements.getItem(1)
+              //           item.order = compositeValue1.dataValue
+              //           let compositeValue2 = value.elements.getItem(2)
+              //           item.orderLine = compositeValue2.dataValue
+              //         }
+              //         break;
+              //     }
+              //   }
+              //   break;
+              // case "ALC":
+              //   // code block
+
+              //   i = i + 1;
+              //   let alcValue = segments.getItem(i)
+              //   if (alcValue.name == 'PCD') {
+              //     for (let k = 0; k < alcValue.elements.Count; k++) {
+              //       switch (k) {
+              //         case 0:
+              //           let value = alcValue.elements.getItem(0)
+              //           if (value.Composite) {
+              //             // let compositeValue1 = value.elements.getItem(1)
+              //             // item.price = compositeValue1.dataValue
+              //             let compositeValue2 = value.elements.getItem(1)
+              //             item.discount = compositeValue2.dataValue
+              //           }
+              //           break;
+              //       }
+              //     }
+              //   } else {
+              //     i = i - 1;
+              //   }
+              //  break;
             }
             i = i + 1;
             itemImd = segments.getItem(i)
@@ -677,17 +722,17 @@ const ediToJson = function (data) {
         //   // code block
         //   break;
         case "MOA":
-          for (let j = 0; j < segment.elements.Count; j++) {
-            switch (j) {
-              case 0:
-                let value = segment.elements.getItem(0)
-                if (value.Composite) {
-                  let compositeValue = value.elements.getItem(1)
-                  tempObj.totalAmount = compositeValue.dataValue
-                }
-                break;
-            }
-          }
+          // for (let j = 0; j < segment.elements.Count; j++) {
+          //   switch (j) {
+          //     case 0:
+          //       let value = segment.elements.getItem(0)
+          //       if (value.Composite) {
+          //         let compositeValue = value.elements.getItem(1)
+          //         tempObj.totalAmount = compositeValue.dataValue
+          //       }
+          //       break;
+          //   }
+          // }
           break;
         case "UNT":
           // code block
@@ -700,7 +745,7 @@ const ediToJson = function (data) {
       }
     }
   }
-  console.log(tempObj.orderLine)
+  //console.log(tempObj)
   return tempObj
 }
 module.exports = { jsonToEdi, ediToJson }
