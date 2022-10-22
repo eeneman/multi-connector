@@ -1,0 +1,51 @@
+{
+    "plugins": [
+      "tampuuri-roleinformation"
+    ],
+    "protocol": "custom",
+    "authConfig":{
+        "user": "${user}",
+        "password": "${password}",
+        "server": "${server}",
+        "database": "${database}",
+        "port": 1433,
+        "options": {
+            "encrypt": false
+        },
+        "path":""
+    },
+    "dataObjects": [
+      ""
+    ],
+    "dataPropertyMappings": {
+      "": ""
+    },
+    "generalConfig": {
+      "query": {},
+      "sourceName": {
+        "dataObjectProperty": "name"
+      },
+      "hardwareId": {
+        "pathIndex": 4
+      },
+      "measurement": {
+        "pathIndex": 5
+      },
+      "timestamp": {
+        "dataObjectProperty": "timestamp"
+      }
+    },
+    "input": {
+        "required": [
+          "parameters.targetObject"
+        ]
+    },
+    "output": {
+      "contextValue": "https://standards-ontotest.oftrust.net/v2/Context/DataProductOutput/Project/PTSProject/?v=2.0",
+      "array": "costLocation",
+      "object": "data",
+      "value": "result",
+      "data": "measurements",
+      "id": "id"
+    }
+  }
