@@ -1,0 +1,24 @@
+{
+    "template": "tampuuri-housingCompanyInformation",
+    "static": {
+        "user": "",
+        "password": "",
+        "server": "",
+        "database": "",
+        "port": "",
+        "options": {
+            "encrypt": false
+        }
+    },
+    "dynamic": {
+        
+    },
+    "request": {
+        "targetObject": [
+            {
+                "@type":"<type>",
+                "idLocal": "<idLocal>"
+            }
+        ]
+    }
+  }
