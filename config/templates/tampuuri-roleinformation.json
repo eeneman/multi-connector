@@ -41,7 +41,7 @@
         ]
     },
     "output": {
-      "contextValue": "https://standards-ontotest.oftrust.net/v2/Context/DataProductOutput/Project/PTSProject/?v=2.0",
+      "contextValue": "https://standards-ontotest.oftrust.net/v2/DataExample/DataProductParameters/RoleInformation",
       "array": "costLocation",
       "object": "data",
       "value": "result",

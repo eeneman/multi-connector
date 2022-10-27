@@ -23,16 +23,31 @@ async function getDataFromDb(config) {
 
             sql.connect(configuration, function (err) {
 
-                if (err) console.log(err);
-                var ids = config.parameters.targetObject.map(item => item.idLocal)
-
+                if (err) {
+                    reject(err)
+                }
+                var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
+                var names = config.parameters.targetObject.map(item => item.name).filter(Boolean)
+                //generate where condition
+                var condition = ""
+                if(ids.length>0 && names.length>0){
+                    condition = `"Perustiedot: Nimi" IN ('${names.join("',")}') or
+                                    id IN (${ids.join()})`
+                }
+                else if(names.length>0){
+                    condition = `"Perustiedot: Nimi" IN ('${names.join("',")}')`
+                }
+                else {
+                    condition = `id IN (${ids.join()})`
+                }
                 // create Request object
                 var request = new sql.Request();
 
                 // query to the database and get the records
                 request.query(`select 
                                     Id,
-                                    Name,
+                                    Name as nameLocal,
+                                    "Perustiedot: Nimi" as name,
                                     Status,
                                     "Perustiedot: Kiinteistötyyppi" as categorizationLocal,
                                     "Perustiedot: Kunta" as postalArea,
@@ -43,7 +58,7 @@ async function getDataFromDb(config) {
                                 from 
                                     pot.Kustannuspaikat 
                                 Where 
-                                    id IN ( ${ids.join()});`,
+                                    ${condition};`,
                     function (err, recordset) {
                         if (err) {
                             reject(err)
@@ -73,19 +88,20 @@ const output = async (config, output) => {
     data = await getDataFromDb(config)
     data.forEach(function (item) {
         arr.push({
-            "@type": "HousingCompany",
-            "name": item.Name,
+            "@type": "Organization",
+            "name": item.name,
+            "nameLocal": item.nameLocal,
             "idLocal": item.Id,
             "status": item.Status,
             "categorizationLocal": item.categorizationLocal,
             "address": {
-                "@type": "",
+                "@type": "StreetAddress",
                 "streetAddressLine1": item.streetAddressLine1,
                 "streetAddressLine2": "",
                 "city": item.city,
                 "postalArea": item.postalArea,
                 "postalCode": item.postalCode,
-                "country": ""
+                "country": "Finland"
             },
             "completionMomentYear": item.completionMomentYear
         })

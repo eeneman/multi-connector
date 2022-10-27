@@ -23,7 +23,9 @@ async function getDataFromDb(config) {
 
             sql.connect(configuration, function (err) {
 
-                if (err) console.log(err);
+                if (err) {
+                    reject(err)
+                }
                 var ids = config.parameters.targetObject.map(item => item.idLocal)
 
                 // create Request object
@@ -36,11 +38,14 @@ async function getDataFromDb(config) {
                                 KohdeOsapuoliyhteys.YhteysAlkaa,
 	                            KohdeOsapuoliyhteys.YhteysLoppuu,
                                 Kustannuspaikat.id as Kustannuspaikat_id,
-                                Kustannuspaikat.name as Kustannuspaikat_name,
+                                Kustannuspaikat.[Perustiedot: Nimi] as Kustannuspaikat_nimi,
                                 Roolit.id as Roolit_id,
                                 Roolit.name as Roolit_name,
+                                Roolit.PropertyRights,
                                 Osapuolet.OsapuoliId,
-                                Osapuolet.OsapuoliNimi
+                                Osapuolet.OsapuoliNimi,
+                                Osapuolet.YritysId,
+                                Osapuolet.YritysNimi
                             from 
                                 pot.KohdeOsapuoliyhteys,
                                 pot.Kustannuspaikat,
@@ -82,9 +87,9 @@ const output = async (config, output) => {
         let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
         if (index < 0) {
             arr.push({
-                "@type": "CostLocation",
+                "@type": "Organization",
                 "idLocal": item.KohteetId,
-                "name": item.Kustannuspaikat_name,
+                "name": item.Kustannuspaikat_nimi,
                 "role": [
                     {
                         "@type": "Role",
@@ -92,11 +97,17 @@ const output = async (config, output) => {
                         "name": item.Roolit_name,
                         "startDateTime": item.YhteysAlkaa,
                         "endDateTime": item.YhteysLoppuu,
-                        "party": {
-                            "@type": "Person",
-                            "idLocal": item.OsapuoliId,
-                            "name": item.OsapuoliNimi
-                        }
+                        "permission": item.PropertyRights,
+                        "person": {
+							"@type": "Person",
+							"idLocal": item.OsapuoliId,
+							"name": item.OsapuoliNimi
+						},
+                        "organization": {
+							"@type": "Organization",
+							"idLocal": item.YritysId,
+							"name": item.YritysNimi
+						}
                     }
                 ]
             })
@@ -108,10 +119,16 @@ const output = async (config, output) => {
                 "name": item.Roolit_name,
                 "startDateTime": item.YhteysAlkaa,
                 "endDateTime": item.YhteysLoppuu,
-                "party": {
+                "permission": item.PropertyRights,
+                "person": {
                     "@type": "Person",
                     "idLocal": item.OsapuoliId,
                     "name": item.OsapuoliNimi
+                },
+                "organization": {
+                    "@type": "Organization",
+                    "idLocal": item.YritysId,
+                    "name": item.YritysNimi
                 }
             })
         }

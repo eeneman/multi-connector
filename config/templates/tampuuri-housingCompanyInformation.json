@@ -41,7 +41,7 @@
         ]
     },
     "output": {
-      "contextValue": "https://standards-ontotest.oftrust.net/v2/Context/DataProductOutput/HousingCompanyInformation/?v=2.0",
+      "contextValue": "https://standards-ontotest.oftrust.net/v2/DataExample/DataProductParameters/HousingCompanyInformation",
       "array": "housingCompany",
       "object": "data",
       "value": "result",
