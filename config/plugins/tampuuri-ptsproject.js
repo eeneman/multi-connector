@@ -25,53 +25,56 @@ async function getDataFromDb(config) {
 
                 if (err) {
                     reject(err)
-                }
-                var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
-                var costLocationIds = config.parameters.targetObject.map(item => item.costLocation?.idLocal).filter(Boolean)
-                var condition = ""
-                if(ids.length>0 && costLocationIds.length>0){
-                    condition = `(Remonttinro IN ( ${ids.join()}) or
+                } else {
+                    var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
+                    var costLocationIds = config.parameters.targetObject.map(item => item.costLocation?.idLocal).filter(Boolean)
+                    var condition = ""
+                    if (ids.length > 0 && costLocationIds.length > 0) {
+                        condition = `(Remonttinro IN ( ${ids.join()}) or
                                 kohteetid IN ( ${costLocationIds.join()}))`
-                }
-                else if(costLocationIds.length>0){
-                    condition = `kohteetid IN ( ${costLocationIds.join()})`
-                }
-                else {
-                    condition = `Remonttinro IN ( ${ids.join()})`
-                }
+                    }
+                    else if (costLocationIds.length > 0) {
+                        condition = `kohteetid IN ( ${costLocationIds.join()})`
+                    }
+                    else {
+                        condition = `Remonttinro IN ( ${ids.join()})`
+                    }
 
-                // create Request object
-                var request = new sql.Request();
+                    // create Request object
+                    var request = new sql.Request();
 
-                // query to the database and get the records
-                request.query(`select 
-                Pts.Remonttinro,
-                Pts.Vastuuhenkilöid,
-                Pts.Vuosi,
-                "Alkuperäinen status" as statusOriginal,
-                Pts.Vastuuhenkilö,
-                Pts.Budjettihinta,
-                Pts.Toteutunuthinta,
-                Pts.RemontinTila,
-                Pts.Nimi,
-                Pts.Kuvaus,
-                Pts.kohteetid,
-                Kustannuspaikat.name as costLocationName
-            from 
-                pot.Pts,
-                pot.Kustannuspaikat 
-            Where 
-                ${condition} and 
-                pot.Pts.kohteetid=pot.Kustannuspaikat.id;`,
-                    function (err, recordset) {
-                        if (err) {
-                            reject(err)
-                        }
-                        let data = recordset.recordset
-                        sql.close()
-                        resolve(data)
+                    // query to the database and get the records
+                    request.query(`select 
+                                    Pts.Remonttinro,
+                                    Pts.Vastuuhenkilöid,
+                                    Pts.Vuosi,
+                                    "Alkuperäinen status" as statusOriginal,
+                                    Pts.Vastuuhenkilö,
+                                    Pts.Budjettihinta,
+                                    Pts.Toteutunuthinta,
+                                    Pts.RemontinTila,
+                                    Pts.Nimi,
+                                    Pts.Kuvaus,
+                                    Pts.kohteetid,
+                                    Kustannuspaikat.name as costLocationName
+                                from 
+                                    pot.Pts,
+                                    pot.Kustannuspaikat 
+                                Where 
+                                    ${condition} and 
+                                    pot.Pts.kohteetid=pot.Kustannuspaikat.id;`,
+                        function (err, recordset) {
+                            if (err) {
+                                reject(err)
+                                sql.close()
+                            } else {
+                                let data = recordset.recordset
+                                sql.close()
+                                resolve(data)
 
-                    });
+                            }
+                        });
+                }
             });
         } catch (error) {
             reject(error)

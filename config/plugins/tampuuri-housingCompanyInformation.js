@@ -25,26 +25,26 @@ async function getDataFromDb(config) {
 
                 if (err) {
                     reject(err)
-                }
-                var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
-                var names = config.parameters.targetObject.map(item => item.name).filter(Boolean)
-                //generate where condition
-                var condition = ""
-                if(ids.length>0 && names.length>0){
-                    condition = `"Perustiedot: Nimi" IN ('${names.join("',")}') or
+                } else {
+                    var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
+                    var names = config.parameters.targetObject.map(item => item.name).filter(Boolean)
+                    //generate where condition
+                    var condition = ""
+                    if (ids.length > 0 && names.length > 0) {
+                        condition = `"Perustiedot: Nimi" IN ('${names.join("',")}') or
                                     id IN (${ids.join()})`
-                }
-                else if(names.length>0){
-                    condition = `"Perustiedot: Nimi" IN ('${names.join("',")}')`
-                }
-                else {
-                    condition = `id IN (${ids.join()})`
-                }
-                // create Request object
-                var request = new sql.Request();
+                    }
+                    else if (names.length > 0) {
+                        condition = `"Perustiedot: Nimi" IN ('${names.join("',")}')`
+                    }
+                    else {
+                        condition = `id IN (${ids.join()})`
+                    }
+                    // create Request object
+                    var request = new sql.Request();
 
-                // query to the database and get the records
-                request.query(`select 
+                    // query to the database and get the records
+                    request.query(`select 
                                     Id,
                                     Name as nameLocal,
                                     "Perustiedot: Nimi" as name,
@@ -59,15 +59,18 @@ async function getDataFromDb(config) {
                                     pot.Kustannuspaikat 
                                 Where 
                                     ${condition};`,
-                    function (err, recordset) {
-                        if (err) {
-                            reject(err)
-                        }
-                        let data = recordset.recordset
-                        sql.close()
-                        resolve(data)
+                        function (err, recordset) {
+                            if (err) {
+                                reject(err)
+                                sql.close()
+                            } else {
+                                let data = recordset.recordset
+                                sql.close()
+                                resolve(data)
 
-                    });
+                            }
+                        });
+                }
             });
         } catch (error) {
             reject(error)

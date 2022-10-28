@@ -25,14 +25,14 @@ async function getDataFromDb(config) {
 
                 if (err) {
                     reject(err)
-                }
-                var ids = config.parameters.targetObject.map(item => item.idLocal)
+                } else {
+                    var ids = config.parameters.targetObject.map(item => item.idLocal)
 
-                // create Request object
-                var request = new sql.Request();
+                    // create Request object
+                    var request = new sql.Request();
 
-                // query to the database and get the records
-                request.query(`SELECT 
+                    // query to the database and get the records
+                    request.query(`SELECT 
                                 KohdeOsapuoliyhteys.id as KohdeOsapuoliyhteys_id,
                                 KohdeOsapuoliyhteys.KohteetId,
                                 KohdeOsapuoliyhteys.YhteysAlkaa,
@@ -56,15 +56,18 @@ async function getDataFromDb(config) {
                                 pot.KohdeOsapuoliyhteys.KohteetId =pot.Kustannuspaikat.Id and 
                                 pot.KohdeOsapuoliyhteys.RooliId =pot.Roolit.Id and
                                 pot.KohdeOsapuoliyhteys.OsapuoliId =pot.Osapuolet.OsapuoliId;`,
-                    function (err, recordset) {
-                        if (err) {
-                            reject(err)
-                        }
-                        let data = recordset.recordset
-                        sql.close()
-                        resolve(data)
+                        function (err, recordset) {
+                            if (err) {
+                                reject(err)
+                                sql.close()
+                            } else {
+                                let data = recordset.recordset
+                                sql.close()
+                                resolve(data)
+                            }
 
-                    });
+                        });
+                }
             });
         } catch (error) {
             reject(error)
@@ -99,15 +102,15 @@ const output = async (config, output) => {
                         "endDateTime": item.YhteysLoppuu,
                         "permission": item.PropertyRights,
                         "person": {
-							"@type": "Person",
-							"idLocal": item.OsapuoliId,
-							"name": item.OsapuoliNimi
-						},
+                            "@type": "Person",
+                            "idLocal": item.OsapuoliId,
+                            "name": item.OsapuoliNimi
+                        },
                         "organization": {
-							"@type": "Organization",
-							"idLocal": item.YritysId,
-							"name": item.YritysNimi
-						}
+                            "@type": "Organization",
+                            "idLocal": item.YritysId,
+                            "name": item.YritysNimi
+                        }
                     }
                 ]
             })
