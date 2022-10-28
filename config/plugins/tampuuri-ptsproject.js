@@ -33,7 +33,7 @@ async function getDataFromDb(config) {
                     condition = `(Remonttinro IN ( ${ids.join()}) or
                                 kohteetid IN ( ${costLocationIds.join()}))`
                 }
-                else if(names.length>0){
+                else if(costLocationIds.length>0){
                     condition = `kohteetid IN ( ${costLocationIds.join()})`
                 }
                 else {
