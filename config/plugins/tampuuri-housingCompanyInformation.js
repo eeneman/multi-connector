@@ -88,27 +88,29 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    data = await getDataFromDb(config)
-    data.forEach(function (item) {
-        arr.push({
-            "@type": "Organization",
-            "name": item.name,
-            "nameLocal": item.nameLocal,
-            "idLocal": item.Id,
-            "status": item.Status,
-            "categorizationLocal": item.categorizationLocal,
-            "address": {
-                "@type": "StreetAddress",
-                "streetAddressLine1": item.streetAddressLine1,
-                "streetAddressLine2": "",
-                "city": item.city,
-                "postalArea": item.postalArea,
-                "postalCode": item.postalCode,
-                "country": "Finland"
-            },
-            "completionMomentYear": item.completionMomentYear
+    if (config.parameters.targetObject.length > 0) {
+        data = await getDataFromDb(config)
+        data.forEach(function (item) {
+            arr.push({
+                "@type": "Organization",
+                "name": item.name,
+                "nameLocal": item.nameLocal,
+                "idLocal": typeof item.Id === 'number' ? item.Id.toString() : item.Id,
+                "status": item.Status,
+                "categorizationLocal": item.categorizationLocal,
+                "address": {
+                    "@type": "StreetAddress",
+                    "streetAddressLine1": item.streetAddressLine1,
+                    "streetAddressLine2": "",
+                    "city": item.city,
+                    "postalArea": item.postalArea,
+                    "postalCode": item.postalCode,
+                    "country": "Finland"
+                },
+                "completionMomentYear": typeof item.completionMomentYear === 'number' ? item.completionMomentYear.toString() : item.completionMomentYear
+            })
         })
-    })
+    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {

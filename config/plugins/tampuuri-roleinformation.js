@@ -85,57 +85,59 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    data = await getDataFromDb(config)
-    data.forEach(function (item) {
-        let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
-        if (index < 0) {
-            arr.push({
-                "@type": "Organization",
-                "idLocal": item.KohteetId,
-                "name": item.Kustannuspaikat_nimi,
-                "role": [
-                    {
-                        "@type": "Role",
-                        "idLocal": item.Roolit_id,
-                        "name": item.Roolit_name,
-                        "startDateTime": item.YhteysAlkaa,
-                        "endDateTime": item.YhteysLoppuu,
-                        "permission": item.PropertyRights,
-                        "person": {
-                            "@type": "Person",
-                            "idLocal": item.OsapuoliId,
-                            "name": item.OsapuoliNimi
-                        },
-                        "organization": {
-                            "@type": "Organization",
-                            "idLocal": item.YritysId,
-                            "name": item.YritysNimi
-                        }
-                    }
-                ]
-            })
-        }
-        else {
-            arr[index].role.push({
-                "@type": "Role",
-                "idLocal": item.Roolit_id,
-                "name": item.Roolit_name,
-                "startDateTime": item.YhteysAlkaa,
-                "endDateTime": item.YhteysLoppuu,
-                "permission": item.PropertyRights,
-                "person": {
-                    "@type": "Person",
-                    "idLocal": item.OsapuoliId,
-                    "name": item.OsapuoliNimi
-                },
-                "organization": {
+    if (config.parameters.targetObject.length > 0) {
+        data = await getDataFromDb(config)
+        data.forEach(function (item) {
+            let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
+            if (index < 0) {
+                arr.push({
                     "@type": "Organization",
-                    "idLocal": item.YritysId,
-                    "name": item.YritysNimi
-                }
-            })
-        }
-    })
+                    "idLocal": typeof item.KohteetId === 'number' ? item.KohteetId.toString() : item.KohteetId,
+                    "name": item.Kustannuspaikat_nimi,
+                    "role": [
+                        {
+                            "@type": "Role",
+                            "idLocal": typeof item.Roolit_id === 'number' ? item.Roolit_id.toString() : item.Roolit_id,
+                            "name": item.Roolit_name,
+                            "startDateTime": item.YhteysAlkaa,
+                            "endDateTime": item.YhteysLoppuu,
+                            "permission": item.PropertyRights,
+                            "person": {
+                                "@type": "Person",
+                                "idLocal": typeof item.OsapuoliId === 'number' ? item.OsapuoliId.toString() : item.OsapuoliId,
+                                "name": item.OsapuoliNimi
+                            },
+                            "organization": {
+                                "@type": "Organization",
+                                "idLocal": typeof item.YritysId === 'number' ? item.YritysId.toString() : item.YritysId,
+                                "name": item.YritysNimi
+                            }
+                        }
+                    ]
+                })
+            }
+            else {
+                arr[index].role.push({
+                    "@type": "Role",
+                    "idLocal": typeof item.Roolit_id === 'number' ? item.Roolit_id.toString() : item.Roolit_id,
+                    "name": item.Roolit_name,
+                    "startDateTime": item.YhteysAlkaa,
+                    "endDateTime": item.YhteysLoppuu,
+                    "permission": item.PropertyRights,
+                    "person": {
+                        "@type": "Person",
+                        "idLocal": typeof item.OsapuoliId === 'number' ? item.OsapuoliId.toString() : item.OsapuoliId,
+                        "name": item.OsapuoliNimi
+                    },
+                    "organization": {
+                        "@type": "Organization",
+                        "idLocal": typeof item.YritysId === 'number' ? item.YritysId.toString() : item.YritysId,
+                        "name": item.YritysNimi
+                    }
+                })
+            }
+        })
+    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {

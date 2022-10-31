@@ -92,28 +92,32 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    data = await getDataFromDb(config)
-    data.forEach(function (item) {
-        arr.push({
-            "@type": "Project",
-            "description": item.Kuvaus,
-            "idLocal": item.Remonttinro,
-            "status": item.RemontinTila,
-            "statusOriginal": item.statusOriginal,
-            "plannedStart": item.Vuosi,
-            "priceBudget": item.Budjettihinta,
-            "costLocation": {
-                "@type": "Organization",
-                "name": item.costLocationName,
-                "idLocal": item.kohteetid
-            },
-            "owner": {
-                "@type": "Organization",
-                "name": item.Vastuuhenkilö,
-                "idLocal": item.Vastuuhenkilöid
-            }
+    if (config.parameters.targetObject.length > 0) {
+        data = await getDataFromDb(config)
+        data.forEach(function (item) {
+            arr.push({
+                "@type": "Project",
+                "description": item.Kuvaus,
+                "idLocal": typeof item.Remonttinro === 'number' ? item.Remonttinro.toString() : item.Remonttinro,
+                "name": item.Nimi,
+                "status": item.RemontinTila,
+                "statusOriginal": item.statusOriginal,
+                "plannedStart": typeof item.Vuosi === 'number' ? item.Vuosi.toString() : item.Vuosi,
+                "priceActual": typeof item.Toteutunuthinta === 'number' ? item.Toteutunuthinta.toString() : item.Toteutunuthinta,
+                "priceBudget": typeof item.Budjettihinta === 'number' ? item.Budjettihinta.toString() : item.Budjettihinta,
+                "costLocation": {
+                    "@type": "Organization",
+                    "name": item.costLocationName,
+                    "idLocal": typeof item.kohteetid === 'number' ? item.kohteetid.toString() : item.kohteetid
+                },
+                "owner": {
+                    "@type": "Organization",
+                    "name": item.Vastuuhenkilö,
+                    "idLocal": typeof item.Vastuuhenkilöid === 'number' ? item.Vastuuhenkilöid.toString() : item.Vastuuhenkilöid
+                }
+            })
         })
-    })
+    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {
