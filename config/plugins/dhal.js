@@ -13,7 +13,6 @@ const sftp = require('../../app/protocols/sftp');
  */
 
 const request = async (config, options) => {
-    console.log("13....................,", options)
     return options;
 };
 
@@ -67,7 +66,6 @@ const template = async (config, template) => {
  * @return {Object}
  */
 const response = async (config, data) => {
-    console.log(".....")
     return data;
 
 }
@@ -80,7 +78,6 @@ const response = async (config, data) => {
  * @return {Object}
  */
 const output = async (config, output) => {
-    console.log("..output")
     return output;
 }
 
