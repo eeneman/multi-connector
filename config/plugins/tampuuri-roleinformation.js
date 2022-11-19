@@ -25,14 +25,14 @@ async function getDataFromDb(config) {
 
                 if (err) {
                     reject(err)
-                }
-                var ids = config.parameters.targetObject.map(item => item.idLocal)
+                } else {
+                    var ids = config.parameters.targetObject.map(item => item.idLocal)
 
-                // create Request object
-                var request = new sql.Request();
+                    // create Request object
+                    var request = new sql.Request();
 
-                // query to the database and get the records
-                request.query(`SELECT 
+                    // query to the database and get the records
+                    request.query(`SELECT 
                                 KohdeOsapuoliyhteys.id as KohdeOsapuoliyhteys_id,
                                 KohdeOsapuoliyhteys.KohteetId,
                                 KohdeOsapuoliyhteys.YhteysAlkaa,
@@ -56,15 +56,18 @@ async function getDataFromDb(config) {
                                 pot.KohdeOsapuoliyhteys.KohteetId =pot.Kustannuspaikat.Id and 
                                 pot.KohdeOsapuoliyhteys.RooliId =pot.Roolit.Id and
                                 pot.KohdeOsapuoliyhteys.OsapuoliId =pot.Osapuolet.OsapuoliId;`,
-                    function (err, recordset) {
-                        if (err) {
-                            reject(err)
-                        }
-                        let data = recordset.recordset
-                        sql.close()
-                        resolve(data)
+                        function (err, recordset) {
+                            if (err) {
+                                reject(err)
+                                sql.close()
+                            } else {
+                                let data = recordset.recordset
+                                sql.close()
+                                resolve(data)
+                            }
 
-                    });
+                        });
+                }
             });
         } catch (error) {
             reject(error)
@@ -82,57 +85,59 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    data = await getDataFromDb(config)
-    data.forEach(function (item) {
-        let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
-        if (index < 0) {
-            arr.push({
-                "@type": "Organization",
-                "idLocal": item.KohteetId,
-                "name": item.Kustannuspaikat_nimi,
-                "role": [
-                    {
-                        "@type": "Role",
-                        "idLocal": item.Roolit_id,
-                        "name": item.Roolit_name,
-                        "startDateTime": item.YhteysAlkaa,
-                        "endDateTime": item.YhteysLoppuu,
-                        "permission": item.PropertyRights,
-                        "person": {
-							"@type": "Person",
-							"idLocal": item.OsapuoliId,
-							"name": item.OsapuoliNimi
-						},
-                        "organization": {
-							"@type": "Organization",
-							"idLocal": item.YritysId,
-							"name": item.YritysNimi
-						}
-                    }
-                ]
-            })
-        }
-        else {
-            arr[index].role.push({
-                "@type": "Role",
-                "idLocal": item.Roolit_id,
-                "name": item.Roolit_name,
-                "startDateTime": item.YhteysAlkaa,
-                "endDateTime": item.YhteysLoppuu,
-                "permission": item.PropertyRights,
-                "person": {
-                    "@type": "Person",
-                    "idLocal": item.OsapuoliId,
-                    "name": item.OsapuoliNimi
-                },
-                "organization": {
+    if (config.parameters.targetObject.length > 0) {
+        data = await getDataFromDb(config)
+        data.forEach(function (item) {
+            let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
+            if (index < 0) {
+                arr.push({
                     "@type": "Organization",
-                    "idLocal": item.YritysId,
-                    "name": item.YritysNimi
-                }
-            })
-        }
-    })
+                    "idLocal": typeof item.KohteetId === 'number' ? item.KohteetId.toString() : item.KohteetId,
+                    "name": item.Kustannuspaikat_nimi,
+                    "role": [
+                        {
+                            "@type": "Role",
+                            "idLocal": typeof item.Roolit_id === 'number' ? item.Roolit_id.toString() : item.Roolit_id,
+                            "name": item.Roolit_name,
+                            "startDateTime": item.YhteysAlkaa,
+                            "endDateTime": item.YhteysLoppuu,
+                            "permission": item.PropertyRights,
+                            "person": {
+                                "@type": "Person",
+                                "idLocal": typeof item.OsapuoliId === 'number' ? item.OsapuoliId.toString() : item.OsapuoliId,
+                                "name": item.OsapuoliNimi
+                            },
+                            "organization": {
+                                "@type": "Organization",
+                                "idLocal": typeof item.YritysId === 'number' ? item.YritysId.toString() : item.YritysId,
+                                "name": item.YritysNimi
+                            }
+                        }
+                    ]
+                })
+            }
+            else {
+                arr[index].role.push({
+                    "@type": "Role",
+                    "idLocal": typeof item.Roolit_id === 'number' ? item.Roolit_id.toString() : item.Roolit_id,
+                    "name": item.Roolit_name,
+                    "startDateTime": item.YhteysAlkaa,
+                    "endDateTime": item.YhteysLoppuu,
+                    "permission": item.PropertyRights,
+                    "person": {
+                        "@type": "Person",
+                        "idLocal": typeof item.OsapuoliId === 'number' ? item.OsapuoliId.toString() : item.OsapuoliId,
+                        "name": item.OsapuoliNimi
+                    },
+                    "organization": {
+                        "@type": "Organization",
+                        "idLocal": typeof item.YritysId === 'number' ? item.YritysId.toString() : item.YritysId,
+                        "name": item.YritysNimi
+                    }
+                })
+            }
+        })
+    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {
