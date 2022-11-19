@@ -27,7 +27,10 @@ async function getDataFromDb(config) {
                     reject(err)
                 } else {
                     var ids = config.parameters.targetObject.map(item => item.idLocal)
-
+                    var condition = ""
+                    if (ids.length > 0) {
+                        condition = `KohteetId IN ( ${ids.join()}) and `
+                    }
                     // create Request object
                     var request = new sql.Request();
 
@@ -52,7 +55,7 @@ async function getDataFromDb(config) {
                                 pot.Roolit,
                                 pot.Osapuolet
                             where 
-                                KohteetId IN ( ${ids.join()}) and 
+                                ${condition}
                                 pot.KohdeOsapuoliyhteys.KohteetId =pot.Kustannuspaikat.Id and 
                                 pot.KohdeOsapuoliyhteys.RooliId =pot.Roolit.Id and
                                 pot.KohdeOsapuoliyhteys.OsapuoliId =pot.Osapuolet.OsapuoliId;`,
@@ -85,7 +88,6 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    if (config.parameters.targetObject.length > 0) {
         data = await getDataFromDb(config)
         data.forEach(function (item) {
             let index = lodash.findIndex(arr, function (o) { return o.idLocal == item.KohteetId })
@@ -137,7 +139,6 @@ const output = async (config, output) => {
                 })
             }
         })
-    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {

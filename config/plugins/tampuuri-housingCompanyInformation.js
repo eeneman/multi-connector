@@ -29,16 +29,16 @@ async function getDataFromDb(config) {
                     var ids = config.parameters.targetObject.map(item => item.idLocal).filter(Boolean)
                     var names = config.parameters.targetObject.map(item => item.name).filter(Boolean)
                     //generate where condition
-                    var condition = ""
+                    var condition = ";"
                     if (ids.length > 0 && names.length > 0) {
-                        condition = `"Perustiedot: Nimi" IN ('${names.join("',")}') or
-                                    id IN (${ids.join()})`
+                        condition = `Where "Perustiedot: Nimi" IN ('${names.join("',")}') or
+                                    id IN (${ids.join()});`
                     }
                     else if (names.length > 0) {
-                        condition = `"Perustiedot: Nimi" IN ('${names.join("',")}')`
+                        condition = `Where "Perustiedot: Nimi" IN ('${names.join("',")}');`
                     }
-                    else {
-                        condition = `id IN (${ids.join()})`
+                    else if (ids.length > 0){
+                        condition = `Where id IN (${ids.join()});`
                     }
                     // create Request object
                     var request = new sql.Request();
@@ -57,8 +57,7 @@ async function getDataFromDb(config) {
                                     "Perustiedot: Rakennusvuosi" as completionMomentYear
                                 from 
                                     pot.Kustannuspaikat 
-                                Where 
-                                    ${condition};`,
+                                ${condition}`,
                         function (err, recordset) {
                             if (err) {
                                 reject(err)
@@ -88,7 +87,6 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    if (config.parameters.targetObject.length > 0) {
         data = await getDataFromDb(config)
         data.forEach(function (item) {
             arr.push({
@@ -110,7 +108,6 @@ const output = async (config, output) => {
                 "completionMomentYear": typeof item.completionMomentYear === 'number' ? item.completionMomentYear.toString() : item.completionMomentYear
             })
         })
-    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {

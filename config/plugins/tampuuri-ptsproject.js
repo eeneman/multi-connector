@@ -31,13 +31,13 @@ async function getDataFromDb(config) {
                     var condition = ""
                     if (ids.length > 0 && costLocationIds.length > 0) {
                         condition = `(Remonttinro IN ( ${ids.join()}) or
-                                kohteetid IN ( ${costLocationIds.join()}))`
+                                kohteetid IN ( ${costLocationIds.join()})) and`
                     }
                     else if (costLocationIds.length > 0) {
-                        condition = `kohteetid IN ( ${costLocationIds.join()})`
+                        condition = `kohteetid IN ( ${costLocationIds.join()}) and`
                     }
-                    else {
-                        condition = `Remonttinro IN ( ${ids.join()})`
+                    else if (ids.length > 0){
+                        condition = `Remonttinro IN ( ${ids.join()}) and`
                     }
 
                     // create Request object
@@ -61,7 +61,7 @@ async function getDataFromDb(config) {
                                     pot.Pts,
                                     pot.Kustannuspaikat 
                                 Where 
-                                    ${condition} and 
+                                    ${condition} 
                                     pot.Pts.kohteetid=pot.Kustannuspaikat.id;`,
                         function (err, recordset) {
                             if (err) {
@@ -92,7 +92,6 @@ async function getDataFromDb(config) {
  */
 const output = async (config, output) => {
     var arr = []
-    if (config.parameters.targetObject.length > 0) {
         data = await getDataFromDb(config)
         data.forEach(function (item) {
             arr.push({
@@ -117,7 +116,6 @@ const output = async (config, output) => {
                 }
             })
         })
-    }
     const result = {
         [config.output.context]: config.output.contextValue,
         [config.output.object]: {
